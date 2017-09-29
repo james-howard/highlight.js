@@ -41,6 +41,28 @@ function(hljs) {
   };
   var LEXEMES = /[a-zA-Z@][a-zA-Z0-9_]*/;
   var CLASS_KEYWORDS = '@interface @class @protocol @implementation';
+  var PREPROCESSOR =       {
+    className: 'meta',
+    begin: /#\s*[a-z]+\b/, end: /$/,
+    keywords: {
+      'meta-keyword':
+        'if else elif endif define undef warning error line ' +
+        'pragma ifdef ifndef include'
+    },
+    contains: [
+      {
+        begin: /\\\n/, relevance: 0
+      },
+      hljs.inherit(hljs.QUOTE_STRING_MODE, {className: 'meta-string'}),
+      {
+        className: 'meta-string',
+        begin: /<[^\n>]*>/, end: /$/,
+        illegal: '\\n',
+      },
+      hljs.C_LINE_COMMENT_MODE,
+      hljs.C_BLOCK_COMMENT_MODE
+    ]
+  };
   return {
     aliases: ['mm', 'objc', 'obj-c'],
     keywords: OBJC_KEYWORDS,
@@ -66,20 +88,7 @@ function(hljs) {
           }
         ]
       },
-      {
-        className: 'meta',
-        begin: '#',
-        end: '$',
-        contains: [
-          {
-            className: 'meta-string',
-            variants: [
-              { begin: '\"', end: '\"' },
-              { begin: '<', end: '>' }
-            ]
-          }
-        ]
-      },
+      PREPROCESSOR,
       {
         className: 'class',
         begin: '(' + CLASS_KEYWORDS.split(' ').join('|') + ')\\b', end: '({|$)', excludeEnd: true,
